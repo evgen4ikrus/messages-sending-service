@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from .models import Client, Message, MobileOperatorCode, Sending, Tag
-from .services.messages_sending_service import check_new_message
+from .models import Client, Message, MobileOperatorCode, Mailing, Tag
+from .services.messages_sending_service import prepare_messages
 
 
-@admin.register(Sending)
-class SendingAdmin(admin.ModelAdmin):
+@admin.register(Mailing)
+class MailingAdmin(admin.ModelAdmin):
     list_display = [
         'id',
         'start_at',
@@ -40,6 +40,10 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = [
         'text',
     ]
+
+    # def save_model(self, request, obj, form, change):
+    #     super().save_model(request, obj, form, change)
+    #     prepare_messages(obj)
 
 
 @admin.register(Client)

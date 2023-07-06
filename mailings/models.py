@@ -18,7 +18,7 @@ def validate_mobile_operator_code(value):
         raise ValidationError('Код должен состоять из трёх цифр')
 
 
-class Sending(models.Model):
+class Mailing(models.Model):
     start_at = models.DateTimeField(
         'Начать рассылку',
         help_text='Начало отправки сообщений пользователям.',
@@ -29,13 +29,13 @@ class Sending(models.Model):
     )
     client_tags = models.ManyToManyField(
         'Tag',
-        related_name='sending',
+        related_name='mailings',
         verbose_name='Теги клиентов',
         help_text='Теги клиентов, которым будет отправлено сообщение.'
     )
     client_mobile_operator_codes = models.ManyToManyField(
         'MobileOperatorCode',
-        related_name='sending',
+        related_name='mailings',
         verbose_name='Коды мобильных операторов клиентов',
         help_text='Коды мобильных операторов клиентов, которым будет отправлено сообщение.'
     )
@@ -100,9 +100,6 @@ class Client(models.Model):
         help_text='Заполняется автоматически, после сохранения данных'
     )
 
-    # def get_mobile_operator_code(self):
-    #     return self.phone_number[1:4]
-
     def __str__(self):
         return self.phone_number
 
@@ -115,8 +112,8 @@ class Client(models.Model):
 class Message(models.Model):
     text = models.TextField('Текст')
     create_at = models.DateTimeField('Создано', auto_now_add=True)
-    sending = models.ForeignKey(
-        Sending,
+    mailing = models.ForeignKey(
+        Mailing,
         related_name='massages',
         verbose_name='Рассылка',
         on_delete=models.CASCADE,

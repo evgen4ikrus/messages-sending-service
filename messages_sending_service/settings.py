@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'messages_app',
+    'rest_framework',
+    'mailings',
 ]
 
 MIDDLEWARE = [
@@ -117,8 +118,11 @@ TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
+DATETIME_FORMAT = "%Y-%m-%d%H:%M:%S"
+
+L10N = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
