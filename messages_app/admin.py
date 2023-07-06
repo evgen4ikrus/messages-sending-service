@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import Client, Message, MobileOperatorCode, Sending, Tag
+from .services.messages_sending_service import check_new_message
 
 
 @admin.register(Sending)
@@ -23,7 +24,7 @@ class SendingAdmin(admin.ModelAdmin):
 @admin.register(MobileOperatorCode)
 class MobileOperatorCodeAdmin(admin.ModelAdmin):
     list_display = [
-        'mobile_operator_code',
+        'code',
     ]
 
 
@@ -55,13 +56,9 @@ class ClientAdmin(admin.ModelAdmin):
         }),
     )
 
-    def mobile_operator_code(self, obj):
-        return obj.phone_number[1:4]
-
-    mobile_operator_code.short_description = 'Код мобильного оператора'
-
     def save_model(self, request, obj, form, change):
-        super().save_model(request, obj, form, change)
-        MobileOperatorCode.objects.get_or_create(
-            mobile_operator_code=obj.phone_number[1:4]
+        mobile_operator_code, _ = MobileOperatorCode.objects.get_or_create(
+            code=obj.phone_number[1:4]
         )
+        obj.mobile_operator_code = mobile_operator_code
+        super().save_model(request, obj, form, change)

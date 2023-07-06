@@ -49,14 +49,14 @@ class Sending(models.Model):
 
 
 class MobileOperatorCode(models.Model):
-    mobile_operator_code = models.CharField(
+    code = models.CharField(
         'Код мобильного оператора',
         max_length=3,
         validators=[validate_mobile_operator_code],
     )
 
     def __str__(self):
-        return self.mobile_operator_code
+        return self.code
 
     class Meta:
         verbose_name = 'Код мобильного оператора'
@@ -90,6 +90,18 @@ class Client(models.Model):
         verbose_name='Тег',
         on_delete=models.CASCADE,
     )
+    mobile_operator_code = models.ForeignKey(
+        MobileOperatorCode,
+        related_name='clients',
+        verbose_name='Код мобильного оператора',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        help_text='Заполняется автоматически, после сохранения данных'
+    )
+
+    # def get_mobile_operator_code(self):
+    #     return self.phone_number[1:4]
 
     def __str__(self):
         return self.phone_number
