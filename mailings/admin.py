@@ -39,11 +39,8 @@ class TagAdmin(admin.ModelAdmin):
 class MessageAdmin(admin.ModelAdmin):
     list_display = [
         'text',
+        'status',
     ]
-
-    # def save_model(self, request, obj, form, change):
-    #     super().save_model(request, obj, form, change)
-    #     prepare_messages(obj)
 
 
 @admin.register(Client)

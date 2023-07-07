@@ -18,6 +18,14 @@ def validate_mobile_operator_code(value):
         raise ValidationError('Код должен состоять из трёх цифр')
 
 
+MESSAGE_STATUSES = [
+    ('waiting', 'Ожидает рассылки'),
+    ('active', 'Активная рассылка'),
+    ('completed', 'Рассылка завершена'),
+]
+
+
+
 class Mailing(models.Model):
     start_at = models.DateTimeField(
         'Начать рассылку',
@@ -118,6 +126,7 @@ class Message(models.Model):
         verbose_name='Рассылка',
         on_delete=models.CASCADE,
     )
+    status = models.CharField("Статус", max_length=20, default="Ожидает рассылки", choices=MESSAGE_STATUSES)
 
     def __str__(self):
         return self.text
