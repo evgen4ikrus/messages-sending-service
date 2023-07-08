@@ -25,7 +25,6 @@ MESSAGE_STATUSES = [
 ]
 
 
-
 class Mailing(models.Model):
     start_at = models.DateTimeField(
         'Начать рассылку',
@@ -126,7 +125,12 @@ class Message(models.Model):
         verbose_name='Рассылка',
         on_delete=models.CASCADE,
     )
-    status = models.CharField("Статус", max_length=20, default="Ожидает рассылки", choices=MESSAGE_STATUSES)
+    status = models.CharField(
+        "Статус",
+        max_length=20,
+        choices=MESSAGE_STATUSES,
+        help_text='Присваивается автоматически.'
+    )
 
     def __str__(self):
         return self.text

@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from .models import Client, Message, MobileOperatorCode, Mailing, Tag
-from .services.messages_sending_service import prepare_messages
+from .models import Client, Mailing, Message, MobileOperatorCode, Tag
 
 
 @admin.register(Mailing)
@@ -41,6 +40,11 @@ class MessageAdmin(admin.ModelAdmin):
         'text',
         'status',
     ]
+    readonly_fields = ('status',)
+
+    def save_model(self, request, obj, form, change):
+        obj.status = 'waiting'
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(Client)
