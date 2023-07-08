@@ -16,26 +16,26 @@ class Command(BaseCommand):
     help = 'The Zen of Python'
 
     def handle(self, *args, **options):
-        host = settings.HOST_NAME
+        home_url = settings.HOME_URL
 
         while True:
 
-            waiting_messages = get_messages_by_status(host, 'waiting')
+            waiting_messages = get_messages_by_status(home_url, 'waiting')
             if not waiting_messages:
                 time.sleep(1)
                 continue
 
             for message in waiting_messages:
                 current_message_status = message.get('status')
-                actual_message_status = get_message_status(host, message)
+                actual_message_status = get_message_status(home_url, message)
                 if current_message_status != actual_message_status:
-                    message = update_message(host, message, actual_message_status)
+                    message = update_message(home_url, message, actual_message_status)
                     if message.get('status') == 'active':
-                        send_messages(host, message)
+                        send_messages(home_url, message)
 
 
-def get_message_status(host, message):
-    mailing = get_mailing_by_id(host, message.get('mailing'))
+def get_message_status(home_url, message):
+    mailing = get_mailing_by_id(home_url, message.get('mailing'))
     mailing_start = datetime.strptime(mailing.get('start_at'), "%Y-%m-%dT%H:%M:%S")
     mailing_end = datetime.strptime(mailing.get('end_at'), "%Y-%m-%dT%H:%M:%S")
     now = datetime.now()
@@ -46,16 +46,16 @@ def get_message_status(host, message):
     return 'waiting'
 
 
-def send_messages(host, message):
+def send_messages(home_url, message):
     text = message.get('text')
-    mailing = get_mailing_by_id(host, message.get('mailing'))
+    mailing = get_mailing_by_id(home_url, message.get('mailing'))
     for code in mailing.get('client_mobile_operator_codes'):
         for tag in mailing.get('client_tags'):
-            clients = get_clients(host, tag, code)
+            clients = get_clients(home_url, tag, code)
             if not clients:
                 continue
             for client in clients:
-                actual_message_status = get_message_status(host, message)
+                actual_message_status = get_message_status(home_url, message)
                 if actual_message_status == 'completed':
                     logger.info(f'Отправка сообщений: "{text}" завершено. Сообщения отправлены не всем пользователям. '
                                 'Время окончания рассылки меньше текущего.')
@@ -69,10 +69,10 @@ def send_messages(host, message):
 
 
 # FIXME: Изменить на метод update
-def update_message(host, message, status):
-    delete_message(host, message.get('id'))
+def update_message(home_url, message, status):
+    delete_message(home_url, message.get('id'))
     message = create_message(
-        host,
+        home_url,
         message.get('id'),
         message.get('text'),
         message.get('mailing'),

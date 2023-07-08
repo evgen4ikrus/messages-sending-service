@@ -4,12 +4,12 @@ services:
 
   django:
     build: .
-    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py runserver ${HOME_URL-0.0.0.0:8000}"
     volumes:
       - .:/code
       - static:/code/static
     environment:
-      SECRET_KEY: ${SECRET_KEY}
+      SECRET_KEY: ${SECRET_KEY-change_me}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS-0.0.0.0}
       DEBUG: ${DEBUG-True}
     ports:

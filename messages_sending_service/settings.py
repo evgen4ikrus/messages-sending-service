@@ -34,7 +34,7 @@ DEBUG = env.bool('DEBUG', True)
 # ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', '0.0.0.0:8000')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', '0.0.0.0')
 
-HOST_NAME = env('HOST_NAME', 'http://0.0.0.0:8000')
+HOME_URL = env('HOME_URL', 'http://0.0.0.0:8000')
 
 
 # Application definition
