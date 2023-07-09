@@ -20,14 +20,20 @@ def validate_mobile_operator_code(value):
         raise ValidationError('Код должен состоять из трёх цифр')
 
 
-MESSAGE_STATUSES = [
-    ('waiting', 'Ожидает рассылки'),
-    ('active', 'Активная рассылка'),
-    ('completed', 'Рассылка завершена'),
+MAILING_STATUSES = [
+    ('waiting', 'Ожидание'),
+    ('active', 'В процессе'),
+    ('completed', 'Завершена'),
 ]
 
 
 class Mailing(models.Model):
+    message = models.ForeignKey(
+        'Message',
+        related_name='mailings',
+        verbose_name='Сообщение',
+        on_delete=models.CASCADE,
+    )
     start_at = models.DateTimeField(
         'Начать рассылку',
         help_text='Начало отправки сообщений пользователям.',
@@ -48,14 +54,17 @@ class Mailing(models.Model):
         verbose_name='Коды мобильных операторов клиентов',
         help_text='Коды мобильных операторов клиентов, которым будет отправлено сообщение.'
     )
+    status = models.CharField(
+        "Статус",
+        max_length=20,
+        choices=MAILING_STATUSES,
+        help_text='Присваивается автоматически.'
+    )
 
     @property
-    def status(self) -> bool:
-        if self.start_at > datetime.now():
-            return 'waiting'
-        if datetime.now() > self.end_at:
-            return 'completed'
-        return 'active'
+    def ready_to_send(self):
+        if self.start_at < datetime.now() < self.end_at:
+            return True
 
     def __str__(self):
         return f'{self.id} : {self.start_at} - {self.end_at}'
@@ -129,18 +138,6 @@ class Client(models.Model):
 class Message(models.Model):
     text = models.TextField('Текст')
     create_at = models.DateTimeField('Создано', auto_now_add=True)
-    mailing = models.ForeignKey(
-        Mailing,
-        related_name='massages',
-        verbose_name='Рассылка',
-        on_delete=models.CASCADE,
-    )
-    status = models.CharField(
-        "Статус",
-        max_length=20,
-        choices=MESSAGE_STATUSES,
-        help_text='Присваивается автоматически.'
-    )
 
     def __str__(self):
         return self.text

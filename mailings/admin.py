@@ -6,18 +6,21 @@ from .models import Client, Mailing, Message, MobileOperatorCode, Tag
 @admin.register(Mailing)
 class MailingAdmin(admin.ModelAdmin):
     list_display = [
+        'message',
         'id',
         'start_at',
         'end_at',
+        'status',
     ]
     fieldsets = (
         ('Основная информация', {
-            'fields': ('start_at', 'end_at'),
+            'fields': ('message', 'start_at', 'end_at'),
         }),
         ('Фильтры', {
             'fields': ('client_tags', 'client_mobile_operator_codes'),
         }),
     )
+    readonly_fields = ('status', )
 
 
 @admin.register(MobileOperatorCode)
@@ -38,13 +41,8 @@ class TagAdmin(admin.ModelAdmin):
 class MessageAdmin(admin.ModelAdmin):
     list_display = [
         'text',
-        'status',
+        'create_at',
     ]
-    readonly_fields = ('status',)
-
-    def save_model(self, request, obj, form, change):
-        obj.status = obj.mailing.status
-        super().save_model(request, obj, form, change)
 
 
 @admin.register(Client)
