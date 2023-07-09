@@ -3,14 +3,13 @@ import time
 
 from django.core.management.base import BaseCommand
 
-from mailings.models import Message, Client, Mailing
+from mailings.models import Client, Mailing, Message
 
-logger = logging.getLogger('messages_sending_service')
+logger = logging.getLogger('mailing')
 logging.basicConfig(level=logging.INFO)
 
 
 class Command(BaseCommand):
-    help = 'The Zen of Python'
 
     def handle(self, *args, **options):
         while True:
@@ -30,23 +29,23 @@ class Command(BaseCommand):
                     )
                     message.status = 'active'
                     message.save()
-                    send_messages(message, clients, mailing)
+                    message_report = send_messages(message, clients, mailing)
+                    logger.info(message_report)
+                    message.status = 'completed'
+                    message.save()
 
 
 def send_messages(message, clients, mailing):
     text = message.text
-    
+
+    if not clients:
+        return f'Нет подходящих номеров для сообщения: {text}.'
+
     for client in clients:
         mailing = Mailing.objects.get(id=mailing.id)
         if not mailing.status == 'active':
-            logger.info(f'Отправка сообщений: "{text}" завершена. Сообщения отправлены не всем пользователям.')
-            message.status = 'completed'
-            message.save()
-            return
+            return f'Отправка сообщений {text} прекращена. Сообщения отправлены не всем пользователям.'
 
         logger.info(f'Сообщение:"{text}" отправлено клиенту с номером {client.phone_number}')
-        time.sleep(10)
 
-    logger.info(f'Сообщение: "{text}" отправлено всем необходимым пользователям')
-    message.status = 'completed'
-    message.save()
+    return f'Все сообщения: {text} отправлены'

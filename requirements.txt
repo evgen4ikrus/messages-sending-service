@@ -2,4 +2,3 @@ Django==4.2.3
 environs==9.5.0
 djangorestframework==3.14.0
 django-filter==23.2
-requests==2.31.0

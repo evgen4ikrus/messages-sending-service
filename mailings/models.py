@@ -1,7 +1,7 @@
+from datetime import datetime
+
 from django.core.exceptions import ValidationError
 from django.db import models
-
-from datetime import datetime
 
 
 def validate_phone_number(value):
