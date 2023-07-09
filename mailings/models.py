@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from datetime import datetime
+
 
 def validate_phone_number(value):
     if not value.startswith('7'):
@@ -46,6 +48,14 @@ class Mailing(models.Model):
         verbose_name='Коды мобильных операторов клиентов',
         help_text='Коды мобильных операторов клиентов, которым будет отправлено сообщение.'
     )
+
+    @property
+    def status(self) -> bool:
+        if self.start_at > datetime.now():
+            return 'waiting'
+        if datetime.now() > self.end_at:
+            return 'completed'
+        return 'active'
 
     def __str__(self):
         return f'{self.id} : {self.start_at} - {self.end_at}'

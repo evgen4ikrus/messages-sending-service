@@ -1,12 +1,9 @@
 import logging
 import time
-from datetime import datetime
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from ...apy_methods import (create_message, delete_message, get_clients,
-                            get_mailing_by_id, get_messages_by_status)
+from mailings.models import Message, Client, Mailing
 
 logger = logging.getLogger('messages_sending_service')
 logging.basicConfig(level=logging.INFO)
@@ -16,67 +13,40 @@ class Command(BaseCommand):
     help = 'The Zen of Python'
 
     def handle(self, *args, **options):
-        home_url = settings.HOME_URL
-
         while True:
 
-            waiting_messages = get_messages_by_status(home_url, 'waiting')
+            waiting_messages = Message.objects.filter(status='active')
+
             if not waiting_messages:
                 time.sleep(1)
                 continue
-
+            
             for message in waiting_messages:
-                current_message_status = message.get('status')
-                actual_message_status = get_message_status(home_url, message)
-                if current_message_status != actual_message_status:
-                    message = update_message(home_url, message, actual_message_status)
-                    if message.get('status') == 'active':
-                        send_messages(home_url, message)
+                mailing = message.mailing
+                if mailing.status == 'active':
+                    clients = Client.objects.filter(
+                        tag__in=mailing.client_tags.all(),
+                        mobile_operator_code__in=mailing.client_mobile_operator_codes.all()
+                    )
+                    message.status = 'active'
+                    message.save()
+                    send_messages(message, clients, mailing)
 
 
-def get_message_status(home_url, message):
-    mailing = get_mailing_by_id(home_url, message.get('mailing'))
-    mailing_start = datetime.strptime(mailing.get('start_at'), "%Y-%m-%dT%H:%M:%S")
-    mailing_end = datetime.strptime(mailing.get('end_at'), "%Y-%m-%dT%H:%M:%S")
-    now = datetime.now()
-    if mailing_end < now:
-        return 'completed'
-    if mailing_start < now:
-        return 'active'
-    return 'waiting'
+def send_messages(message, clients, mailing):
+    text = message.text
+    
+    for client in clients:
+        mailing = Mailing.objects.get(id=mailing.id)
+        if not mailing.status == 'active':
+            logger.info(f'Отправка сообщений: "{text}" завершена. Сообщения отправлены не всем пользователям.')
+            message.status = 'completed'
+            message.save()
+            return
 
+        logger.info(f'Сообщение:"{text}" отправлено клиенту с номером {client.phone_number}')
+        time.sleep(10)
 
-def send_messages(home_url, message):
-    text = message.get('text')
-    mailing = get_mailing_by_id(home_url, message.get('mailing'))
-    for code in mailing.get('client_mobile_operator_codes'):
-        for tag in mailing.get('client_tags'):
-            clients = get_clients(home_url, tag, code)
-            if not clients:
-                continue
-            for client in clients:
-                actual_message_status = get_message_status(home_url, message)
-                if actual_message_status == 'completed':
-                    logger.info(f'Отправка сообщений: "{text}" завершено. Сообщения отправлены не всем пользователям. '
-                                'Время окончания рассылки меньше текущего.')
-                    return
-                if actual_message_status == 'waiting':
-                    logger.info(f'Отправка сообщений: "{text}" завершено. Сообщения отправлены не всем пользователям. '
-                                'Время начала рассылки больше текущего.')
-                    return
-                logger.info(f'Сообщение:"{text}" отправлено клиенту с номером {client.get("phone_number")}')
     logger.info(f'Сообщение: "{text}" отправлено всем необходимым пользователям')
-
-
-# FIXME: Изменить на метод update
-def update_message(home_url, message, status):
-    delete_message(home_url, message.get('id'))
-    message = create_message(
-        home_url,
-        message.get('id'),
-        message.get('text'),
-        message.get('mailing'),
-        message.get('create_at'),
-        status,
-    )
-    return message
+    message.status = 'completed'
+    message.save()

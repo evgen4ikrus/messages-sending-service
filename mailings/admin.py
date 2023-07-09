@@ -43,7 +43,7 @@ class MessageAdmin(admin.ModelAdmin):
     readonly_fields = ('status',)
 
     def save_model(self, request, obj, form, change):
-        obj.status = 'waiting'
+        obj.status = obj.mailing.status
         super().save_model(request, obj, form, change)
 
 
