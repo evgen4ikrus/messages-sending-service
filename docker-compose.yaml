@@ -1,6 +1,15 @@
 version: "3"
 
 services:
+  db_auth:
+    container_name: db_auth
+    ports:
+      - "5433:5433"
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD-123}
+      - POSTGRES_USER=${POSTGRES_USER-root}
+      - POSTGRES_NAME=${POSTGRES_NAME-db_auth}
+    image: postgres:14.8
 
   django:
     build: .
@@ -12,8 +21,13 @@ services:
       SECRET_KEY: ${SECRET_KEY-change_me}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS-0.0.0.0}
       DEBUG: ${DEBUG-True}
+      DATABASE_URL: ${DATABASE_URL-postgres://root:123@db_auth:/postgres}
+    env_file:
+      - .env
     ports:
       - 8000:8000
+    depends_on:
+      - db_auth
 
 volumes:
   static:

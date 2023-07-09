@@ -34,9 +34,6 @@ DEBUG = env.bool('DEBUG', True)
 # ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', '0.0.0.0:8000')
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', '0.0.0.0')
 
-HOME_URL = env('HOME_URL', 'http://0.0.0.0:8000')
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -82,17 +79,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'messages_sending_service.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': env.dj_db_url('DATABASE_URL', 'postgres://root:123@db_auth:/postgres')
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

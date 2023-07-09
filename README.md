@@ -31,10 +31,14 @@ docker compose run --rm django ./manage.py run_mailing
 Скрипт будет отправлять сообщения для клиентов в консоль.
 
 ### Переменные окружения
-Для локально версии приложения все переменные окружения заданы по умолчанию, но вы можете их переопределить. Для этого создайте файл .env в корневой папке проекта и добавьте переменные:
+Для локально версии приложения все переменные окружения заданы по умолчанию, но вы можете их переопределить. Для этого создайте файл .env в корневой папке проекта и добавьте переменные в формате КЛЮЧ=ЗНАЧЕНИЕ:
 ```
 # Пример:
-DEBUG=False
-SECRET_KEY=django-insecure-0if40ff4nf93n4
+DEBUG=True
+SECRET_KEY=django-insecure-0if40nf4nf93n4
 ALLOWED_HOSTS=0.0.0.0
+POSTGRES_PASSWORD=123
+POSTGRES_USER=root
+POSTGRES_NAME=postgres
+DATABASE_URL=postgres://root:123@db_auth:/postgres
 ```
