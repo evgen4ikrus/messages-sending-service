@@ -28,9 +28,9 @@ MAILING_STATUSES = [
 
 
 class Mailing(models.Model):
-    message = models.ForeignKey(
+    message = models.OneToOneField(
         'Message',
-        related_name='mailings',
+        related_name='mailing',
         verbose_name='Сообщение',
         on_delete=models.CASCADE,
     )
@@ -138,6 +138,7 @@ class Client(models.Model):
 class Message(models.Model):
     text = models.TextField('Текст')
     create_at = models.DateTimeField('Создано', auto_now_add=True)
+    send_at = models.DateTimeField('Отправлено', blank=True, null=True)
 
     def __str__(self):
         return self.text

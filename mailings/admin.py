@@ -21,6 +21,12 @@ class MailingAdmin(admin.ModelAdmin):
         }),
     )
     readonly_fields = ('status', )
+    # def save_model(self, request, obj, form, change):
+    #     obj.message.mailing_id = 
+    #     mobile_operator_code, _ = MobileOperatorCode.objects.get_or_create(
+    #         code=obj.phone_number[1:4]
+    #     )
+    #     super().save_model(request, obj, form, change)
 
 
 @admin.register(MobileOperatorCode)
@@ -43,6 +49,7 @@ class MessageAdmin(admin.ModelAdmin):
         'text',
         'create_at',
     ]
+    readonly_fields = ('mailing', 'send_at')
 
 
 @admin.register(Client)

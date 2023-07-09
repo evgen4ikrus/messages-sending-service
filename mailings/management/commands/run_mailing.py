@@ -1,11 +1,10 @@
-import datetime
 import logging
-import random
 import time
+from datetime import datetime
 
 from django.core.management.base import BaseCommand
 
-from mailings.models import Client, Mailing, Message, Tag, MobileOperatorCode
+from mailings.models import Client, Mailing
 
 logger = logging.getLogger('mailing')
 logging.basicConfig(level=logging.INFO)
@@ -34,10 +33,12 @@ class Command(BaseCommand):
                         tag__in=mailing.client_tags.all(),
                         mobile_operator_code__in=mailing.client_mobile_operator_codes.all()
                     )
-                    message_report = send_messages(clients, mailing)
-                    logger.info(message_report)
+                    mailing_report = send_messages(clients, mailing)
+                    logger.info(mailing_report)
                     mailing.status = 'completed'
                     mailing.save()
+                    mailing.message.send_at = datetime.now()
+                    mailing.message.save()
             time.sleep(1)
 
 def send_messages(clients, mailing):
@@ -50,5 +51,6 @@ def send_messages(clients, mailing):
         mailing = Mailing.objects.get(id=mailing.id)
         if not mailing.ready_to_send:
             return f'Отправка сообщений {text} прекращена. Сообщения отправлены не всем пользователям.'
+        
         logger.info(f'Сообщение:"{text}" отправлено клиенту с номером {client.phone_number}')
     return f'Все сообщения: {text} отправлены'
