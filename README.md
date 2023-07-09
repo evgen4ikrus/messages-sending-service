@@ -16,13 +16,19 @@ docker-compose build
 ``` 
 Запустите докер-контейнеры:
 ``` shell
-docker compose up -d
+docker compose up
 ```
-Накатите свежие миграции БД:
+В новом терминале накатите свежие миграции БД:
 ```shell
 docker compose run --rm django ./manage.py migrate
 ```
 Вход в админку находится по адресу http://0.0.0.0:8000/admin/
+
+Вы можете загрузить тестовую базу данных:
+```shell
+docker compose run --rm django ./manage.py loaddata db.json
+```
+В тестовой БД уже создан суперпользователь с логином `root`, паролем `123` (воспользуйтесь для входа в админку).
 
 Запустите скрипт рассылки сообщений:
 ```shell
