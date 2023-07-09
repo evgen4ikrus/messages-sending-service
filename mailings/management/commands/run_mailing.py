@@ -45,12 +45,12 @@ def send_messages(clients, mailing):
     text = mailing.message.text
 
     if not clients:
-        return f'Нет подходящих номеров для сообщения: {text}.'
+        return f'Нет подходящих номеров для сообщения: "{text}".'
 
     for client in clients:
         mailing = Mailing.objects.get(id=mailing.id)
         if not mailing.ready_to_send:
-            return f'Отправка сообщений {text} прекращена. Сообщения отправлены не всем пользователям.'
+            return f'Отправка сообщений "{text}" прекращена. Сообщения отправлены не всем пользователям.'
         
         logger.info(f'Сообщение:"{text}" отправлено клиенту с номером {client.phone_number}')
-    return f'Все сообщения: {text} отправлены'
+    return f'Все сообщения: "{text}" отправлены'
