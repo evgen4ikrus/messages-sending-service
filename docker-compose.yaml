@@ -1,33 +1,32 @@
 version: "3"
 
 services:
-  db_auth:
-    container_name: db_auth
+  web-app:
+    build:
+      context: .
     ports:
-      - "5434:5434"
-    environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD-123}
-      - POSTGRES_USER=${POSTGRES_USER-root}
-      - POSTGRES_NAME=${POSTGRES_NAME-db_auth}
-    image: postgres:14.8
-
-
-  django:
-    build: .
-    command: bash -c "python manage.py runserver 0.0.0.0:8000"
+      - "8000:8000"
     volumes:
       - .:/code
     environment:
-      SECRET_KEY: ${SECRET_KEY-change_me}
-      ALLOWED_HOSTS: ${ALLOWED_HOSTS-0.0.0.0}
-      DEBUG: ${DEBUG-True}
-      DATABASE_URL: ${DATABASE_URL-postgres://root:123@db_auth:/postgres}
-    env_file:
-      - .env
-    ports:
-      - "8000:8000"
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
+
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+
     depends_on:
-      - db_auth
+      - database
+
+
+  database:
+    image: postgres:14.6-alpine
+    environment:
+      - POSTGRES_DB=dbname
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=pass
 
 
   redis:
@@ -36,7 +35,8 @@ services:
 
 
   worker:
-    build: .
+    build:
+      context: .
     hostname: worker
     entrypoint: celery
     command: -A celery_app.app worker --loglevel=info
@@ -46,10 +46,17 @@ services:
       - redis
     depends_on:
       - redis
+      - database
+    environment:
+      - DB_HOST=database
+      - DB_NAME=dbname
+      - DB_USER=dbuser
+      - DB_PASS=pass
 
 
   flower:
-    build: .
+    build:
+      context: .
     hostname: flower
     entrypoint: celery
     command: -A celery_app.app flower

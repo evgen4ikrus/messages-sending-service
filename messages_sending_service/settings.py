@@ -32,7 +32,7 @@ SECRET_KEY = env('SECRET_KEY', 'default')
 DEBUG = env.bool('DEBUG', True)
 
 # ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', '0.0.0.0:8000')
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', '0.0.0.0')
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', '127.0.0.1')
 
 # Application definition
 
@@ -80,7 +80,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'messages_sending_service.wsgi.application'
 
 DATABASES = {
-    'default': env.dj_db_url('DATABASE_URL', 'postgres://root:123@db_auth:/postgres')
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': os.environ.get('DB_HOST'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASS'),
+    }
 }
 
 # Password validation
@@ -120,13 +126,7 @@ L10N = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = '/staticfiles/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-MEDIA_URL = '/media/'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -139,4 +139,17 @@ REST_FRAMEWORK = {
     )
 }
 
-CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_BROKER_URL = 'redis://redis:6379/1'
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'}
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'WARNING'
+        }
+    }
+}
