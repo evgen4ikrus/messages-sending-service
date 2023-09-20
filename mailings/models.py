@@ -20,14 +20,12 @@ def validate_mobile_operator_code(value):
         raise ValidationError('Код должен состоять из трёх цифр')
 
 
-MAILING_STATUSES = [
-    ('waiting', 'Ожидание'),
-    ('active', 'В процессе'),
-    ('completed', 'Завершена'),
-]
-
-
 class Mailing(models.Model):
+    MAILING_STATUSES = [
+        ('waiting', 'Ожидание'),
+        ('active', 'В процессе'),
+        ('completed', 'Завершена'),
+    ]
     message = models.OneToOneField(
         'Message',
         related_name='mailing',
@@ -58,6 +56,7 @@ class Mailing(models.Model):
         "Статус",
         max_length=20,
         choices=MAILING_STATUSES,
+        default='waiting',
         help_text='Присваивается автоматически.'
     )
 
@@ -68,6 +67,14 @@ class Mailing(models.Model):
 
     def __str__(self):
         return f'{self.id} : {self.start_at} - {self.end_at}'
+
+    def save(self, *args, **kwargs):
+        creating = not bool(self.id)
+        result = super().save(*args, **kwargs)
+        from .tasks import run_mailing
+        if creating:
+            run_mailing.delay(self.id)
+        return result
 
     class Meta:
         verbose_name = 'Рассылка'
