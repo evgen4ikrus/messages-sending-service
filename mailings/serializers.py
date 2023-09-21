@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Client, Mailing, Message, MobileOperatorCode, Tag
+from .models import Mailing, Message, MobileOperatorCode, Tag
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -15,12 +15,6 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ClientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Client
-        fields = '__all__'
-
-
 class MobileOperatorCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = MobileOperatorCode
@@ -28,6 +22,10 @@ class MobileOperatorCodeSerializer(serializers.ModelSerializer):
 
 
 class MailingSerializer(serializers.ModelSerializer):
+    client_tags = TagSerializer(many=True)
+    message = MessageSerializer()
+    client_mobile_operator_codes = MobileOperatorCodeSerializer(many=True)
+
     class Meta:
         model = Mailing
-        fields = '__all__'
+        fields = ('message', 'start_at', 'end_at', 'client_tags', 'client_mobile_operator_codes', 'status')

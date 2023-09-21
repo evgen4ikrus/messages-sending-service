@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'django_filters',
+
     'mailings',
 ]
 
@@ -119,7 +120,7 @@ USE_I18N = True
 
 USE_TZ = False
 
-DATETIME_FORMAT = "%Y-%m-%d%H:%M:%S"
+DATETIME_FORMAT = '%Y-%m-%d%H:%M:%S'
 
 L10N = False
 
@@ -149,7 +150,7 @@ LOGGING = {
     'loggers': {
         'django.db.backends': {
             'handlers': ['console'],
-            'level': 'WARNING'
+            'level': 'DEBUG'
         }
     }
 }

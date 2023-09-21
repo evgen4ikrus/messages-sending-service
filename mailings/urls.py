@@ -1,10 +1,12 @@
-from django.urls import path
-from rest_framework.urlpatterns import format_suffix_patterns
+from rest_framework import routers
 
-from mailings import views
+from mailings.views import MailingView
 
 urlpatterns = [
 
 ]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+router = routers.DefaultRouter()
+router.register(r'mailings', MailingView)
+
+urlpatterns += router.urls
