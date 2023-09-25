@@ -24,9 +24,15 @@ def run_mailing(mailing_id):
         mailing.status = 'active'
         mailing.save()
 
-    mailing_status = mailing.status
-
-    if mailing_status == 'waiting':
+    if mailing.status == 'waiting':
+        time_before_start = mailing.start_at - datetime.now()
+        seconds_before_start = time_before_start.total_seconds()
+        if seconds_before_start > 10000:
+            time.sleep(10000)
+            return
+        if seconds_before_start > 1000:
+            time.sleep(1000)
+            return
         time.sleep(10)
         run_mailing.delay(mailing_id)
         return
