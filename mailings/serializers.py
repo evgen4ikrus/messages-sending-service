@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Mailing, Message, MobileOperatorCode, Tag, Client
+from .models import Client, Mailing, Message, MobileOperatorCode, Tag
 
 
 class TagSerializer(serializers.ModelSerializer):
